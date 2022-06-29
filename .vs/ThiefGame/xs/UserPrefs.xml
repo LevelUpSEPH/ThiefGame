@@ -1,0 +1,35 @@
+﻿<Properties StartupConfiguration="{827A302D-1842-670A-D60D-B0AFD4A387C7}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EnemyScript.cs">
+    <Files>
+      <File FileName="Assets/Scripts/SensorScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/EnemyScript.cs" Line="60" Column="27" />
+      <File FileName="Assets/Scripts/PlayerMovement.cs" />
+      <File FileName="Assets/JoyPad/joypadController.cs" />
+      <File FileName="Assets/Scripts/CameraMovement.cs" />
+      <File FileName="Assets/Scripts/CollectibleScript.cs" />
+      <File FileName="Assets/Scripts/Inventory.cs" />
+      <File FileName="Assets/Scripts/EnemyMovementScript.cs" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="ThiefGame" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="JoyPad" expanded="True" />
+              <Node name="Scripts" expanded="True">
+                <Node name="SensorScript.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="bb63b473-12c3-42d9-a335-3f530c671201" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

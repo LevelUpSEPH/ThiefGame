@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detected
 {
     public Transform player;
@@ -12,13 +13,22 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
     public GameObject enemyrag;
     public Rigidbody ragdollBody;
     private bool isAlive = true;
-    private int timeToCall = 5;
+    public int timeToCall = 5;
     private bool sawPlayer = false;
-    private bool calledCops;
-
+    public bool calledCops = false;
+    private SensorScript sensor;
+    public PlayerMovement playermove;
+    public Text countdown;
+    private int countdownTime = 9;
+    
+    private float countdownInterval, countdownCounter;
+    private float countdownFrequency=1;
     void Start()
     {
         enemymove = gameObject.GetComponent<EnemyMovementScript>();
+        sensor = enemy.GetComponent<SensorScript>();
+        countdownInterval = 1f / countdownFrequency;
+        countdownCounter = countdownInterval;
     }
 
     // Update is called once per frame
@@ -28,8 +38,9 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
         {
             enemymove.isWalking = false;
         }
-        
-        
+        if (sensor.isInSight(player.gameObject))
+            canSeePlayer();
+
 
     }
     public void OnTriggerEnter(Collider other)
@@ -48,41 +59,45 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
     }
     private void callCops()
     {
-        // Enemy calls the cops and 10 sec countdown starts, after 10 seconds if player is still inside house spawn police and lose game
-
+        calledCops = true;
+        float callCopsInterval, callCopsCounter;
+        callCopsInterval = 1;
+        callCopsCounter = callCopsInterval;
+        while (countdownTime > 0)
+        {
+            callCopsCounter -= Time.deltaTime;
+            if (callCopsCounter < 0)
+            {
+                countdown.gameObject.SetActive(true);
+                playermove.MovementSpeed = 3;
+                countdown.text = countdownTime.ToString();
+                countdownTime--;
+                callCopsCounter = callCopsInterval;
+            }
+        }
+        //cops arrive
     }
-    private IEnumerator timeToCallDecrement()
+    private void timeToCallDecrement()
     {
-        WaitForSeconds wait = new WaitForSeconds(1f);
-        yield return wait;
+        
         timeToCall--;
+        print("Decrement");
+        
+        
     }
-    private bool InSight()
+    private void canSeePlayer()
     {
-        if (false)
-            return false;
-        else
-            return true;
-    }
-    private bool UnObstructed()
-    {
-        if (!Physics.Raycast(enemy.transform.position, player.position - transform.position, 3))
+        sawPlayer = true;
+        countdownCounter -= Time.deltaTime;
+        if(countdownCounter < 0)
         {
-            return true;
-        }
-        else
-            return false;
-    }
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.tag == "Player" && UnObstructed() && InSight())
-        {
-            sawPlayer = true;
             timeToCallDecrement();
-            transform.LookAt(player.position);
-            if (InSight() && UnObstructed() && timeToCall <= 0 && isAlive && !calledCops)
-                callCops();
-
+            countdownCounter = countdownInterval;
         }
+        if (sensor.isInSight(player.gameObject) && isAlive)
+            transform.LookAt(player.position);
+        if (sensor.isInSight(player.gameObject) && timeToCall <= 0 && isAlive && !calledCops)
+            callCops();
+
     }
 }

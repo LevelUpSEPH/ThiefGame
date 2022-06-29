@@ -10,15 +10,18 @@ public class SensorScript : MonoBehaviour
     public float angle = 30;
     public int scanFrequency;
     public LayerMask layers;
+    public LayerMask obstructionLayer;
     Collider[] colliders = new Collider[50];
     Mesh mesh;
-    int count;
+    public int count;
     float scanInterval;
     float scanCounter;
+    public List<GameObject> objects = new List<GameObject>();
 
     void Start()
     {
         scanInterval = 1f / scanFrequency;
+        scanCounter = scanInterval;
     }
 
     // Update is called once per frame
@@ -121,13 +124,44 @@ public class SensorScript : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, distance);
         for (int i = 0; i < count; i++)
             Gizmos.DrawSphere(colliders[i].transform.position, 0.2f);
+        Gizmos.color = Color.green;
+        foreach (var obj in objects)
+            Gizmos.DrawSphere(obj.transform.position, 0.2f);
     }
     private void OnValidate()
     {
         mesh = createMesh();
     }
+    public bool isInSight(GameObject obj)
+    {
+        Vector3 origin = transform.position;
+        Vector3 dest = obj.transform.position;
+        Vector3 direction = dest - origin;
+
+        if (direction.y < -0.5f || direction.y > height)
+            return false;
+        direction.y = 0;
+        float deltaAngle = Vector3.Angle(direction,transform.forward);
+        
+        if (deltaAngle > angle)
+            return false;
+        origin.y = height / 2;
+        dest.y = origin.y;
+        if (Physics.Linecast(origin, dest, obstructionLayer))
+            return false;
+        return true;
+    }
     private void Scan()
     {
         count = Physics.OverlapSphereNonAlloc(transform.position, distance, colliders, layers, QueryTriggerInteraction.Collide);
+        objects.Clear();
+        for (int i = 0; i < count; i++)
+        {
+            GameObject obj = colliders[i].gameObject;
+            if (isInSight(obj))
+            {
+                objects.Add(obj);
+            }
+        }
     }
 }

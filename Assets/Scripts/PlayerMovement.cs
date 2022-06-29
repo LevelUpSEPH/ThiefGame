@@ -9,8 +9,9 @@ public class PlayerMovement : MonoBehaviour
     public Animator anim;
     private Vector3 movementDirection;
     public float rotationDegree;
-    public float MovementSpeed;
+    public float MovementSpeed=1;
     private Inventory inventory;
+    public EnemyScript enemy;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,9 +28,17 @@ public class PlayerMovement : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, transform.position + movementDirection, movementDirection.magnitude * MovementSpeed * Time.deltaTime);
         //transform.Translate(movementDirection * Time.deltaTime);
         if (inputX > 0 || inputX < 0)
-            anim.SetBool("Walking", true);
+        {
+            if (!enemy.calledCops)
+                anim.SetBool("Walking", true);
+            if (enemy.calledCops)
+                anim.SetBool("Running", true);
+        }
         else
+        {
+            anim.SetBool("Running", false);
             anim.SetBool("Walking", false);
+        }
         if (movementDirection != Vector3.zero)
         {
             Quaternion rot = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(movementDirection), movementDirection.magnitude * rotationDegree * Time.deltaTime);
