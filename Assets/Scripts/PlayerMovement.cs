@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
 public class PlayerMovement : MonoBehaviour
 {
-    public joypadController js;
+    public FloatingJoystick variableJoystick;
     private float inputX, inputZ;
     public Animator anim;
     private Vector3 movementDirection;
@@ -12,38 +13,53 @@ public class PlayerMovement : MonoBehaviour
     public float MovementSpeed=1;
     private Inventory inventory;
     public EnemyScript enemy;
+    private NavMeshAgent playerNav;
     // Start is called before the first frame update
     void Start()
     {
-        inventory = gameObject.GetComponent<Inventory>();
+        inventory = GetComponent<Inventory>();
+        playerNav = GetComponent<NavMeshAgent>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        inputX = js.horizontalInput();
-        inputZ = js.verticalInput();
-        movementDirection = new Vector3(inputX/4, 0, inputZ/4 );
-        movementDirection.Normalize();
-        transform.position = Vector3.MoveTowards(transform.position, transform.position + movementDirection, movementDirection.magnitude * MovementSpeed * Time.deltaTime);
+
+
         //transform.Translate(movementDirection * Time.deltaTime);
-        if (inputX > 0 || inputX < 0)
+
+        if (movementDirection.magnitude > 0)
         {
             if (!enemy.calledCops)
                 anim.SetBool("Walking", true);
             if (enemy.calledCops)
                 anim.SetBool("Running", true);
         }
+        
+
+        if (Input.GetMouseButton(0))
+        {
+            
+            movementDirection = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
+
+            if (movementDirection.magnitude > 0)
+            {
+
+                playerNav.Move(movementDirection * Time.deltaTime * MovementSpeed);
+                playerNav.SetDestination(transform.position + movementDirection);
+                Quaternion rot = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(movementDirection), movementDirection.magnitude * rotationDegree * Time.deltaTime);
+
+                transform.rotation = rot;
+
+                
+            }
+            
+            
+        }
         else
         {
             anim.SetBool("Running", false);
             anim.SetBool("Walking", false);
-        }
-        if (movementDirection != Vector3.zero)
-        {
-            Quaternion rot = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(movementDirection), movementDirection.magnitude * rotationDegree * Time.deltaTime);
-
-            transform.rotation = rot;   
         }
 
     }

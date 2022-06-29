@@ -19,16 +19,17 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
     private SensorScript sensor;
     public PlayerMovement playermove;
     public Text countdown;
-    private int countdownTime = 9;
+    public int countdownTime = 10;
     
     private float countdownInterval, countdownCounter;
+    
     private float countdownFrequency=1;
     void Start()
     {
         enemymove = gameObject.GetComponent<EnemyMovementScript>();
-        sensor = enemy.GetComponent<SensorScript>();
+        sensor = GetComponent<SensorScript>();
         countdownInterval = 1f / countdownFrequency;
-        countdownCounter = countdownInterval;
+        //countdownCounter = countdownInterval;
     }
 
     // Update is called once per frame
@@ -38,9 +39,30 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
         {
             enemymove.isWalking = false;
         }
+
         if (sensor.isInSight(player.gameObject))
             canSeePlayer();
 
+
+        if (calledCops && countdownTime > 0)
+        {
+            
+            countdownCounter += Time.deltaTime;
+
+            if (countdownCounter >= 1f)
+            {
+                countdownTime--;
+
+                countdown.text = countdownTime.ToString();
+
+                countdownCounter = 0f;
+
+                if (countdownTime <= 0)
+                {
+                    countdown.text = "Cops are arrived!";
+                }
+            }
+        }
 
     }
     public void OnTriggerEnter(Collider other)
@@ -63,7 +85,10 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
         float callCopsInterval, callCopsCounter;
         callCopsInterval = 1;
         callCopsCounter = callCopsInterval;
-        while (countdownTime > 0)
+
+        
+
+        /*if (countdownTime >= 0)
         {
             callCopsCounter -= Time.deltaTime;
             if (callCopsCounter < 0)
@@ -74,7 +99,7 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
                 countdownTime--;
                 callCopsCounter = callCopsInterval;
             }
-        }
+        }*/
         //cops arrive
     }
     private void timeToCallDecrement()
@@ -88,16 +113,26 @@ public class EnemyScript : MonoBehaviour // ADD : ENEMY FOV and check if detecte
     private void canSeePlayer()
     {
         sawPlayer = true;
-        countdownCounter -= Time.deltaTime;
-        if(countdownCounter < 0)
+        if (!calledCops)
         {
-            timeToCallDecrement();
-            countdownCounter = countdownInterval;
+            countdownCounter -= Time.deltaTime;
+            if (countdownCounter < 0)
+            {
+                timeToCallDecrement();
+                countdownCounter = countdownInterval;
+            }
         }
+            
         if (sensor.isInSight(player.gameObject) && isAlive)
             transform.LookAt(player.position);
         if (sensor.isInSight(player.gameObject) && timeToCall <= 0 && isAlive && !calledCops)
-            callCops();
+        {
+            countdownCounter = 0;
+            calledCops = true;
+            playermove.MovementSpeed = 3;
+            countdown.gameObject.SetActive(true);
+        }
+            
 
     }
 }

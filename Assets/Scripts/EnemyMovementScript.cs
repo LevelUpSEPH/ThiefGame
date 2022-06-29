@@ -23,7 +23,11 @@ public class EnemyMovementScript : MonoBehaviour
     {
         setPos();
         if (!isWalking)
-            Destroy(navmeshAgent);
+        {
+            
+            navmeshAgent.enabled = false;
+        }
+            
     }
 
     private void setPos()
